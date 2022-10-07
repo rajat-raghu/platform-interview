@@ -2,11 +2,8 @@
 ### Previously
 ```
 ├── tf
-│   ├── README.MD
-│   ├── dev.tf
 │   ├── main.tf
-│   ├── prod.tf
-│   └── staging.tf
+
 ```
 ### Now
 ```
@@ -39,3 +36,8 @@
 For setting Up all the environment (Dev, Staging, Prod) do the following:
 1. install and configure vagrant & its dependency.
 2. Run ```vagrant up``` command to setup the complete infrastructure.
+
+
+## Points to consider for production:
+1. Secrets should not be written in code and pushed to git repo.
+2. In IaC code use of variables & iteration(count or for_each)can be used to promoted DRY(do not repeat youself) Concept
