@@ -19,7 +19,7 @@
 ```
 
 ### Highlights
-* Tf file on the bases of environment for better code seggrigation on environment bases.
+* Tf file on the bases of environment for better code seggrigation on environment bases & code readability.
 * Code commenting in staging tf file for better code structure undertanding 
  
  ## Adding New Environment
@@ -32,4 +32,10 @@
 2 Updated stanging.tf file
 *  Created following resources & configration for key vault: vault_audit, vault_auth_backend, vault_generic_secret, vault_policy, vault_generic_endpoint
 *  Created & configured following application container: account_staging, gateway_staging, payment_staging, frontend_staging
-* Updated secrets, evironment variables, netwroking settings, keyvault policies for the staging environment
+*  Updated secrets, evironment variables, netwroking settings, keyvault policies for the staging environment
+
+## CI/CD
+
+For setting Up all the environment (Dev, Staging, Prod) do the following:
+1. install and configure vagrant & its dependency.
+2. Run ```vagrant up``` command to setup the complete infrastructure.
