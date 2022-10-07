@@ -1,4 +1,6 @@
-
+####
+# Key vault Audit
+####
 resource "vault_audit" "audit_staging" {
   provider = vault.vault_staging
   type     = "file"
@@ -8,11 +10,18 @@ resource "vault_audit" "audit_staging" {
   }
 }
 
+####
+# Key vault backend config
+####
+
 resource "vault_auth_backend" "userpass_staging" {
   provider = vault.vault_staging
   type     = "userpass"
 }
 
+####
+# Key vault secret creation
+####
 resource "vault_generic_secret" "account_staging" {
   provider = vault.vault_staging
   path     = "secret/staging/account"
@@ -25,29 +34,14 @@ resource "vault_generic_secret" "account_staging" {
 EOT
 }
 
-resource "vault_policy" "account_staging" {
+resource "vault_generic_secret" "payment_staging" {
   provider = vault.vault_staging
-  name     = "account-staging"
-
-  policy = <<EOT
-
-path "secret/data/staging/account" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "account_staging" {
-  provider             = vault.vault_staging
-  depends_on           = [vault_auth_backend.userpass_staging]
-  path                 = "auth/userpass/users/account-staging"
-  ignore_absent_fields = true
+  path     = "secret/staging/payment"
 
   data_json = <<EOT
 {
-  "policies": ["account-staging"],
-  "password": "123-account-staging"
+  "db_user":   "payment",
+  "db_password": "821462d7-47fb-402c-a22a-a58867602e30"
 }
 EOT
 }
@@ -64,6 +58,23 @@ resource "vault_generic_secret" "gateway_staging" {
 EOT
 }
 
+####
+# Key vault policy
+####
+
+resource "vault_policy" "account_staging" {
+  provider = vault.vault_staging
+  name     = "account-staging"
+
+  policy = <<EOT
+
+path "secret/data/staging/account" {
+    capabilities = ["list", "read"]
+}
+
+EOT
+}
+
 resource "vault_policy" "gateway_staging" {
   provider = vault.vault_staging
   name     = "gateway-staging"
@@ -74,6 +85,38 @@ path "secret/data/staging/gateway" {
     capabilities = ["list", "read"]
 }
 
+EOT
+}
+
+
+resource "vault_policy" "payment_staging" {
+  provider = vault.vault_staging
+  name     = "payment-staging"
+
+  policy = <<EOT
+
+path "secret/data/staging/payment" {
+    capabilities = ["list", "read"]
+}
+
+EOT
+}
+
+####
+# Key vault endpoint config
+####
+
+resource "vault_generic_endpoint" "account_staging" {
+  provider             = vault.vault_staging
+  depends_on           = [vault_auth_backend.userpass_staging]
+  path                 = "auth/userpass/users/account-staging"
+  ignore_absent_fields = true
+
+  data_json = <<EOT
+{
+  "policies": ["account-staging"],
+  "password": "123-account-staging"
+}
 EOT
 }
 
@@ -91,31 +134,6 @@ resource "vault_generic_endpoint" "gateway_staging" {
 EOT
 }
 
-resource "vault_generic_secret" "payment_staging" {
-  provider = vault.vault_staging
-  path     = "secret/staging/payment"
-
-  data_json = <<EOT
-{
-  "db_user":   "payment",
-  "db_password": "821462d7-47fb-402c-a22a-a58867602e30"
-}
-EOT
-}
-
-resource "vault_policy" "payment_staging" {
-  provider = vault.vault_staging
-  name     = "payment-staging"
-
-  policy = <<EOT
-
-path "secret/data/staging/payment" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
 resource "vault_generic_endpoint" "payment_staging" {
   provider             = vault.vault_staging
   depends_on           = [vault_auth_backend.userpass_staging]
@@ -129,6 +147,10 @@ resource "vault_generic_endpoint" "payment_staging" {
 }
 EOT
 }
+
+####
+# Application docker container
+####
 
 resource "docker_container" "account_staging" {
   image = "form3tech-oss/platformtest-account"
